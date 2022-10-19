@@ -13,7 +13,7 @@ class App {
     console.log(`Querying the Jigasi REST API at ${this.jigasiUrl}`)
     console.log(`Sending stats data to RTC stats server at ${this.rtcStatsServerUrl}`)
 
-    // Map conference ID to state about that conference
+    // Map conference ID (aka meeting unique ID) to state about that conference
     // Conference state contains, at least:
     // statsSessionId: (String) the dump ID for this conference
     // sessions: (Array) session names for all sessions *who have ever* been in this conference
@@ -128,6 +128,7 @@ class App {
   }
 
   sendData (msgObj) {
+    // console.debug(msgObj)
     this.ws.send(JSON.stringify(msgObj))
   }
 }
@@ -157,6 +158,10 @@ const app = new App(params.jigasiAddress, params.rtcstatsServer)
 app.start()
 
 /**
+ * The Jigasi json is a tree that has the following structure:
+ * root->gateways->sessions->conferences
+ * For easier processing we invert this tree like this:
+ * root->conferences->sessions
  * @param jigasiJson
  */
 function invertJigasiJson (jigasiJson) {
