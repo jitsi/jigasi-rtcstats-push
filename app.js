@@ -169,10 +169,10 @@ function invertJigasiJson (jigasiJson) {
         const meetingUrl = gateway.sessions[sessionName].jvbConference.meetingUrl
         if (meetingId) {
           if (!invertedJson.conferences[meetingId]) {
-            invertJigasiJson.conferences[meetingId] = { sessions: [], meetingUrl }
+            invertedJson.conferences[meetingId] = { sessions: [], meetingUrl }
           }
 
-          invertJigasiJson.confereces[meetingId].sessions.push(sessionName)
+          invertedJson.conferences[meetingId].sessions.push(sessionName)
         }
       })
     })
@@ -201,9 +201,7 @@ async function fetchJson (url) {
 function createIdentityMessage (state) {
   // This is a bit awkward: we keep the statsSessionId in the conference state,
   // but we need to set it as an explicit field of the message.  Also,
-  // we need to explicit parse out previousDebugData so that we can
-  // not include it in the message
-  const { statsSessionId, previousDebugData, ...metadata } = state
+  const { statsSessionId, ...metadata } = state
   return {
     type: 'identity',
     statsSessionId,
