@@ -4,7 +4,7 @@ const WebSocketClient = require('websocket').client;
 
 require('log-timestamp');
 
-const { invertJigasiJson, processJigasiJson } = require('./functions');
+const { processJigasiJson } = require('./functions');
 
 /**
  * The main app.
@@ -35,9 +35,8 @@ module.exports = class App {
         this.fetchTask = setInterval(async () => {
             console.debug('Fetching data');
             const json = await fetchJson(this.jigasiUrl);
-            const invertedJson = invertJigasiJson(json);
 
-            processJigasiJson(invertedJson, this.conferenceStates, this.sendData.bind(this));
+            processJigasiJson(json, this.conferenceStates, this.sendData.bind(this));
         }, 5000);
     }
 
@@ -103,7 +102,7 @@ module.exports = class App {
     sendData(msgObj) {
         this.ws.send(JSON.stringify(msgObj));
     }
-}
+};
 
 /**
  * Fetches data from url, returns response json.

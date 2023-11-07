@@ -2,7 +2,7 @@ const assert = require('node:assert');
 const test = require('node:test');
 const { describe } = require('node:test');
 
-const { invertJigasiJson, processJigasiJson } = require('../src/functions');
+const { processJigasiJson } = require('../src/functions');
 
 const dataNoCalls = require('./test-data-no-calls.json');
 const dataOneCall = require('./test-data-one-call.json');
@@ -18,8 +18,8 @@ describe('Testing parsing of jigasi data', () => {
         };
         const state = [];
 
-        processJigasiJson(invertJigasiJson(dataOneCall), state, sendData);
-        processJigasiJson(invertJigasiJson(dataNoCalls), state, sendData);
+        processJigasiJson(dataOneCall, state, sendData);
+        processJigasiJson(dataNoCalls, state, sendData);
 
         assert.equal(events.length, 3, 'There should be 3 events start, data and stop');
 

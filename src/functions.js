@@ -120,10 +120,13 @@ function _checkForAddedOrRemovedSessions(confId, currentSessions, state, sendCb)
 
 /**
  * Process jigasi json data.
- * @param jigasiJson - The data.
+ * @param json - The data.
  */
-function processJigasiJson(jigasiJson, state, sendCb) {
+function processJigasiJson(json, state, sendCb) {
+    const jigasiJson = invertJigasiJson(json);
+
     checkForAddedOrRemovedConferences(jigasiJson, state, sendCb);
+
     const timestamp = new Date();
 
     _getConferenceIds(jigasiJson).forEach(confId => {
@@ -135,5 +138,4 @@ function processJigasiJson(jigasiJson, state, sendCb) {
     });
 }
 
-module.exports.invertJigasiJson = invertJigasiJson;
 module.exports.processJigasiJson = processJigasiJson;
