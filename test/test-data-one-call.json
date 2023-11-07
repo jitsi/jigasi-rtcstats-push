@@ -1,0 +1,14 @@
+{
+  "gateways": {
+    "413784175": {
+      "sessions": {
+        "15121231234 (+15121231234)": {
+          "jvbConference": {
+            "meetingUrl": "https:\/\/mydomain.com\/somemeetingname",
+            "meetingId": "d98a81a9-2bfa-4259-858d-a9f32c3acdf7"
+          }
+        }
+      }
+    }
+  }
+}
