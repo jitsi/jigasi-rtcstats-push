@@ -17,6 +17,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "log-timestamp": "^0.3.0",
     "node-fetch": "^2.6.1",
     "uuid": "^8.3.1",

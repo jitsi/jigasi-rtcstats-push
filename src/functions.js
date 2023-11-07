@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 
@@ -18,14 +19,19 @@ function invertJigasiJson(jigasiJson) {
             Object.keys(gateway.sessions).forEach(sessionName => {
                 const meetingId = gateway.sessions[sessionName].jvbConference.meetingId;
                 const meetingUrl = gateway.sessions[sessionName].jvbConference.meetingUrl;
+                const nick = gateway.sessions[sessionName].jvbConference.nick;
 
                 if (meetingId) {
                     if (!invertedJson.conferences[meetingId]) {
-                        invertedJson.conferences[meetingId] = { sessions: [],
-                            meetingUrl };
+                        invertedJson.conferences[meetingId] = {
+                            meetingUrl,
+                            caller: sessionName
+                        };
                     }
 
-                    invertedJson.conferences[meetingId].sessions.push(sessionName);
+                    if (nick) {
+                        invertedJson.conferences[meetingId].nick = nick;
+                    }
                 }
             });
         });
@@ -49,7 +55,7 @@ function _getConferenceIds(jigasiJson) {
  */
 function _createIdentityMessage(state) {
     // This is a bit awkward: we keep the statsSessionId in the conference state,
-    // but we need to set it as an explicit field of the message.  Also,
+    // but we need to set it as an explicit field of the message.
     const { statsSessionId, ...metadata } = state;
 
     return {
@@ -74,6 +80,8 @@ function _createCloseMsg(statsSessionId) {
 /**
  * Checks whether conferences are added or removed.
  * @param jigasiJson
+ * @param state - The current state to check.
+ * @param sendCb - The send data callback.
  */
 function checkForAddedOrRemovedConferences(jigasiJson, state, sendCb) {
     const confIds = _getConferenceIds(jigasiJson);
@@ -87,8 +95,7 @@ function checkForAddedOrRemovedConferences(jigasiJson, state, sendCb) {
             confUrl: jigasiJson.conferences[newConfId].meetingUrl,
             displayName: os.hostname(),
             meetingUniqueId: newConfId,
-            applicationName: 'JIGASI',
-            sessions: []
+            applicationName: 'JIGASI'
         };
 
         state[newConfId] = confState;
@@ -105,36 +112,46 @@ function checkForAddedOrRemovedConferences(jigasiJson, state, sendCb) {
 /**
  * Checks for added or removed sessions.
  * @param confId - The id.
- * @param currentSessions - Current sessions.
+ * @param currentData - Current data.
+ * @param state - The current state to check.
  */
-function _checkForAddedOrRemovedSessions(confId, currentSessions, state, sendCb) {
+function _updateData(confId, currentData, state) {
     const confState = state[confId];
-    const oldSessions = confState.sessions;
-    const newSessions = currentSessions.filter(currentSession => oldSessions.indexOf(currentSession) === -1);
 
-    if (newSessions.length > 0) {
-        confState.sessions.push(...newSessions);
-        sendCb(_createIdentityMessage(confState));
+    if (!confState.data || !_.isEqual(confState.data, currentData)) {
+        confState.data = currentData;
+
+        return true;
     }
+
+    return false;
 }
 
 /**
  * Process jigasi json data.
  * @param json - The data.
+ * @param state - The current state to check.
+ * @param sendCb - The send data callback.
  */
 function processJigasiJson(json, state, sendCb) {
     const jigasiJson = invertJigasiJson(json);
 
     checkForAddedOrRemovedConferences(jigasiJson, state, sendCb);
 
-    const timestamp = new Date();
-
     _getConferenceIds(jigasiJson).forEach(confId => {
         const confData = jigasiJson.conferences[confId];
 
-        // The timestamp is at the top level, inject it into the conference data here
-        confData.timestamp = timestamp;
-        _checkForAddedOrRemovedSessions(confId, confData.sessions, state, sendCb);
+        if (_updateData(confId, confData, state)) {
+            const toSend = { ...state[confId] };
+
+            // make a copy of state and data content
+            toSend.data = { ...state[confId].data };
+
+            // let's drop duplicate data
+            delete toSend.data.meetingUrl;
+
+            sendCb(_createIdentityMessage(toSend));
+        }
     });
 }
 
