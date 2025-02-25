@@ -17,9 +17,9 @@ function invertJigasiJson(jigasiJson) {
             const gateway = jigasiJson.gateways[gatewayHash];
 
             Object.keys(gateway.sessions).forEach(sessionName => {
-                const meetingId = gateway.sessions[sessionName].jvbConference.meetingId;
-                const meetingUrl = gateway.sessions[sessionName].jvbConference.meetingUrl;
-                const nick = gateway.sessions[sessionName].jvbConference.nick;
+                const meetingId = gateway.sessions[sessionName].jvbConference?.meetingId;
+                const meetingUrl = gateway.sessions[sessionName].jvbConference?.meetingUrl;
+                const nick = gateway.sessions[sessionName].jvbConference?.nick;
 
                 if (meetingId) {
                     if (!invertedJson.conferences[meetingId]) {
