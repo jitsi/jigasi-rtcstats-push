@@ -7,8 +7,8 @@
     "test": "glob -c \"node --test --require ts-node/register\" \"test/**/*.js\"",
     "watch-test": "glob -c \"node --test --watch --require ts-node/register\" \"test/**/*.js\"",
     "start": "node src/app.js",
-    "lint": "eslint ./src/",
-    "lint:fix": "eslint --fix ./src/"
+    "lint": "eslint -c .eslintrc.js ./src/",
+    "lint:fix": "eslint -c .eslintrc.js --fix ./src/"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@jitsi/eslint-config": "^4.0.0",
+    "eslint": "8.1.0",
     "eslint-plugin-import": "^2.25.3",
     "glob": "^10.3.10",
     "ts-node": "^10.9.1"
